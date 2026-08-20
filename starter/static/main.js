@@ -1,4 +1,11 @@
 // Client-side rendering and interaction for the Flask-backed Sudoku
+import {
+  formatElapsed,
+  getElapsedSeconds,
+  start as startTimer,
+  stop as stopTimer,
+} from './timer.js';
+
 const SIZE = 9;
 let puzzle = [];
 let prefilled = new Set();
@@ -58,7 +65,12 @@ async function newGame() {
   const data = await res.json();
   feedbackRequest += 1;
   renderPuzzle(data.puzzle, data.prefilled);
+  startTimer(updateTimerDisplay);
   document.getElementById('message').innerText = '';
+}
+
+function updateTimerDisplay(seconds = getElapsedSeconds()) {
+  document.getElementById('timer').innerText = formatElapsed(seconds);
 }
 
 function getCurrentBoard() {
@@ -133,6 +145,7 @@ async function checkCurrentBoard() {
     }
   }
   if (data.complete) {
+    stopTimer();
     msg.style.color = '#388e3c';
     msg.innerText = 'Congratulations! You solved it!';
   } else if (incorrect.size > 0) {
@@ -176,6 +189,7 @@ async function checkBoard() {
   }
 
   if (data.complete) {
+    stopTimer();
     msg.style.color = '#388e3c';
     msg.innerText = 'Congratulations! You solved it!';
   } else if (incorrect.size > 0) {
