@@ -129,7 +129,7 @@ async function checkCurrentBoard() {
       ? 'sudoku-cell prefilled'
       : 'sudoku-cell';
     if (incorrect.has(idx)) {
-      inp.className = 'sudoku-cell incorrect';
+      inp.className = 'sudoku-cell live-incorrect';
     }
   }
   if (data.complete) {
@@ -143,15 +143,54 @@ async function checkCurrentBoard() {
   }
 }
 
-async function checkSolution() {
-  await checkCurrentBoard();
+async function checkBoard() {
+  const requestId = ++feedbackRequest;
+  const {board, inputs} = getCurrentBoard();
+  const res = await fetch('/check', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({board})
+  });
+  const data = await res.json();
+  if (requestId !== feedbackRequest) return;
+
+  const msg = document.getElementById('message');
+  if (data.error) {
+    msg.style.color = '#d32f2f';
+    msg.innerText = data.error;
+    return;
+  }
+
+  const incorrect = new Set(
+    data.incorrect
+      .filter(([row, col]) => board[row][col] !== 0)
+      .map(([row, col]) => row * SIZE + col)
+  );
+  for (let idx = 0; idx < inputs.length; idx++) {
+    const inp = inputs[idx];
+    if (inp.disabled) continue;
+    inp.className = 'sudoku-cell';
+    if (incorrect.has(idx)) {
+      inp.className = 'sudoku-cell checked-incorrect';
+    }
+  }
+
+  if (data.complete) {
+    msg.style.color = '#388e3c';
+    msg.innerText = 'Congratulations! You solved it!';
+  } else if (incorrect.size > 0) {
+    msg.style.color = '#d32f2f';
+    msg.innerText = 'Check found incorrect cells.';
+  } else {
+    msg.innerText = '';
+  }
 }
 
 // Wire buttons
 window.addEventListener('load', () => {
   document.getElementById('new-game').addEventListener('click', newGame);
   document.getElementById('hint').addEventListener('click', requestHint);
-  document.getElementById('check-solution').addEventListener('click', checkSolution);
+  document.getElementById('check').addEventListener('click', checkBoard);
   // initialize
   newGame();
 });

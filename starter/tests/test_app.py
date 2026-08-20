@@ -47,6 +47,28 @@ def test_check_reports_completion_for_matching_full_board(
     assert response.get_json() == {"incorrect": [], "complete": True}
 
 
+def test_check_identifies_wrong_cell_without_exposing_solution(
+    client: FlaskClient,
+) -> None:
+    """Check should flag a wrong value without returning the solution."""
+    client.get("/new?difficulty=easy")
+    puzzle = [row[:] for row in CURRENT["puzzle"]]
+    row, col = next(
+        (row, col)
+        for row in range(9)
+        for col in range(9)
+        if puzzle[row][col] == 0
+    )
+    solution_value = CURRENT["solution"][row][col]
+    puzzle[row][col] = solution_value % 9 + 1
+
+    response = client.post("/check", json={"board": puzzle})
+    data = response.get_json()
+
+    assert [row, col] in data["incorrect"]
+    assert "solution" not in data
+
+
 def test_hint_fills_an_empty_editable_cell_and_tracks_usage(
     client: FlaskClient,
 ) -> None:

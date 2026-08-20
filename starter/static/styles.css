@@ -50,9 +50,14 @@ h1 {
     color: #7a5b00;
 }
 
-.sudoku-cell.incorrect {
+.sudoku-cell.live-incorrect {
     background: #ffcdd2;
     box-shadow: inset 0 0 0 2px #d32f2f;
+}
+
+.sudoku-cell.checked-incorrect {
+    background: #ffe0b2;
+    box-shadow: inset 0 0 0 3px #ef6c00;
 }
 
 .sudoku-cell:nth-child(3),
