@@ -6,6 +6,9 @@ import {
   stop as stopTimer,
 } from './timer.js';
 import {addEntry, getTopEntries} from './leaderboard.js';
+import {initialize as initializeTheme, toggle as toggleTheme} from './theme.js';
+
+initializeTheme();
 
 const SIZE = 9;
 let puzzle = [];
@@ -103,7 +106,7 @@ async function requestHint() {
   const data = await res.json();
   const msg = document.getElementById('message');
   if (data.error) {
-    msg.style.color = '#d32f2f';
+    msg.className = 'message-error';
     msg.innerText = data.error;
     return;
   }
@@ -115,7 +118,7 @@ async function requestHint() {
   input.className = 'sudoku-cell hint';
   prefilled.add(idx);
   hintsUsed = data.hints_used;
-  msg.style.color = '#1976d2';
+  msg.className = 'message-info';
   msg.innerText = `Hint used: ${data.hints_used}`;
 }
 
@@ -168,7 +171,7 @@ async function checkCurrentBoard() {
   if (requestId !== feedbackRequest) return;
   const msg = document.getElementById('message');
   if (data.error) {
-    msg.style.color = '#d32f2f';
+    msg.className = 'message-error';
     msg.innerText = data.error;
     return;
   }
@@ -189,12 +192,13 @@ async function checkCurrentBoard() {
   }
   if (data.complete) {
     recordCompletion();
-    msg.style.color = '#388e3c';
+    msg.className = 'message-success';
     msg.innerText = 'Congratulations! You solved it!';
   } else if (incorrect.size > 0) {
-    msg.style.color = '#d32f2f';
+    msg.className = 'message-error';
     msg.innerText = 'Some cells are incorrect.';
   } else {
+    msg.className = '';
     msg.innerText = '';
   }
 }
@@ -212,7 +216,7 @@ async function checkBoard() {
 
   const msg = document.getElementById('message');
   if (data.error) {
-    msg.style.color = '#d32f2f';
+    msg.className = 'message-error';
     msg.innerText = data.error;
     return;
   }
@@ -233,18 +237,21 @@ async function checkBoard() {
 
   if (data.complete) {
     recordCompletion();
-    msg.style.color = '#388e3c';
+    msg.className = 'message-success';
     msg.innerText = 'Congratulations! You solved it!';
   } else if (incorrect.size > 0) {
-    msg.style.color = '#d32f2f';
+    msg.className = 'message-error';
     msg.innerText = 'Check found incorrect cells.';
   } else {
+    msg.className = '';
     msg.innerText = '';
   }
 }
 
 // Wire buttons
 window.addEventListener('load', () => {
+  initializeTheme();
+  document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
   document.getElementById('new-game').addEventListener('click', newGame);
   document.getElementById('hint').addEventListener('click', requestHint);
   document.getElementById('check').addEventListener('click', checkBoard);

@@ -1,5 +1,6 @@
 :root {
     --page-background: #f4f4f4;
+    --page-text: #252a2e;
     --board-background: #fff;
     --box-background-a: #fafafa;
     --box-background-b: #eef5f2;
@@ -7,23 +8,75 @@
     --board-border: #333;
     --prefilled-background: #e0e0e0;
     --hint-background: #fff3cd;
+    --hint-text: #7a5b00;
     --live-incorrect-background: #ffcdd2;
     --live-incorrect-border: #d32f2f;
     --checked-incorrect-background: #ffe0b2;
     --checked-incorrect-border: #ef6c00;
+    --focus-background: #e0f7fa;
+    --button-background: #1976d2;
+    --button-hover-background: #1565c0;
+    --button-text: #fff;
+    --control-background: #fff;
+    --control-border: #9aa4ad;
+    --message-error: #b42318;
+    --message-info: #155eef;
+    --message-success: #1a7f37;
+    --table-border: #d0d7de;
+    --table-header-background: #e3f2fd;
+    --table-background: #fff;
+    --shadow: rgba(0, 0, 0, 0.1);
+}
+
+:root[data-theme="dark"] {
+    --page-background: #12171c;
+    --page-text: #edf2f7;
+    --board-background: #1b2229;
+    --box-background-a: #202a33;
+    --box-background-b: #283640;
+    --cell-border: #657583;
+    --board-border: #d5dee7;
+    --prefilled-background: #465563;
+    --hint-background: #725d1c;
+    --hint-text: #fff1a8;
+    --live-incorrect-background: #6e2930;
+    --live-incorrect-border: #ff7b86;
+    --checked-incorrect-background: #784b1d;
+    --checked-incorrect-border: #ffad5c;
+    --focus-background: #174654;
+    --button-background: #2f81f7;
+    --button-hover-background: #5394f8;
+    --button-text: #fff;
+    --control-background: #202830;
+    --control-border: #8a9aa8;
+    --message-error: #ff9b9b;
+    --message-info: #8ab4ff;
+    --message-success: #7ee787;
+    --table-border: #52606d;
+    --table-header-background: #263f54;
+    --table-background: #1b2229;
+    --shadow: rgba(0, 0, 0, 0.35);
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
 }
 
 body {
     font-family: Arial, sans-serif;
     background: var(--page-background);
+    color: var(--page-text);
     text-align: center;
     margin: 0;
     padding: 0;
+    overflow-x: hidden;
 }
 
 h1 {
     margin-top: 30px;
-    color: #333;
+    color: var(--page-text);
 }
 
 #sudoku-board {
@@ -34,12 +87,12 @@ h1 {
     margin: 30px auto;
     border: 4px solid var(--board-border);
     background: var(--board-background);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 8px var(--shadow);
 }
 
 .timer {
     margin: 12px auto;
-    color: #333;
+    color: var(--page-text);
     font-size: 18px;
     font-variant-numeric: tabular-nums;
 }
@@ -78,19 +131,19 @@ h1 {
 }
 
 .sudoku-cell:focus {
-    background: #e0f7fa;
+    background: var(--focus-background);
 }
 
 .sudoku-cell.prefilled {
     background: var(--prefilled-background);
     font-weight: bold;
-    color: #333;
+    color: var(--page-text);
 }
 
 .sudoku-cell.hint {
     background: var(--hint-background);
     font-weight: bold;
-    color: #7a5b00;
+    color: var(--hint-text);
 }
 
 .sudoku-cell.live-incorrect {
@@ -114,53 +167,115 @@ h1 {
 }
 
 .controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    width: min(900px, 92vw);
     margin: 20px auto;
 }
 
-button {
+button,
+select {
     padding: 8px 18px;
-    margin: 0 8px;
     font-size: 16px;
-    border: none;
-    background: #1976d2;
-    color: #fff;
+    border: 1px solid var(--control-border);
     border-radius: 4px;
+}
+
+button {
+    background: var(--button-background);
+    color: var(--button-text);
     cursor: pointer;
     transition: background 0.2s;
 }
 
 button:hover {
-    background: #1565c0;
+    background: var(--button-hover-background);
+}
+
+select {
+    background: var(--control-background);
+    color: var(--page-text);
 }
 
 #message {
-    margin-left: 20px;
+    flex: 1 1 100%;
+    min-height: 24px;
     font-size: 16px;
-    color: #d32f2f;
+    color: var(--message-error);
+}
+
+#message.message-info {
+    color: var(--message-info);
+}
+
+#message.message-success {
+    color: var(--message-success);
 }
 
 .leaderboard {
     width: min(720px, 92vw);
     margin: 30px auto;
+    overflow-x: auto;
 }
 
 .leaderboard h2 {
-    color: #333;
+    color: var(--page-text);
 }
 
 .leaderboard table {
     width: 100%;
     border-collapse: collapse;
-    background: #fff;
+    background: var(--table-background);
+    color: var(--page-text);
+    table-layout: fixed;
 }
 
 .leaderboard th,
 .leaderboard td {
     padding: 8px 12px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--table-border);
     text-align: left;
+    overflow-wrap: anywhere;
 }
 
 .leaderboard th {
-    background: #e3f2fd;
+    background: var(--table-header-background);
+}
+
+@media (max-width: 480px) {
+    h1 {
+        margin-top: 20px;
+        font-size: 28px;
+    }
+
+    #theme-toggle {
+        margin-bottom: 4px;
+    }
+
+    #sudoku-board {
+        margin: 20px auto;
+    }
+
+    .sudoku-cell {
+        font-size: clamp(14px, 5vw, 20px);
+    }
+
+    .controls {
+        width: 94vw;
+    }
+
+    button,
+    select {
+        padding: 8px 10px;
+        font-size: 14px;
+    }
+
+    .leaderboard th,
+    .leaderboard td {
+        padding: 7px 5px;
+        font-size: 13px;
+    }
 }
