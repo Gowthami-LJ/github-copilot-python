@@ -20,7 +20,10 @@ def index() -> str:
 @app.route('/new')
 def new_game() -> Any:
     """Generate a puzzle and return its clues as JSON."""
-    clues = int(request.args.get('clues', 35))
+    difficulty = request.args.get("difficulty", "medium").lower()
+    clues = generator.DIFFICULTY_CLUES.get(
+        difficulty, generator.DIFFICULTY_CLUES["medium"]
+    )
     puzzle, solution = generator.generate_puzzle(clues)
     CURRENT['puzzle'] = puzzle
     CURRENT['solution'] = solution

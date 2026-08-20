@@ -43,10 +43,12 @@ def count_solutions(board: Board, limit: int = 2) -> int:
     if limit <= 0:
         return 0
 
+    empty_positions: list[tuple[int, int]] = []
     for row in range(SIZE):
         for col in range(SIZE):
             value = board[row][col]
             if value == 0:
+                empty_positions.append((row, col))
                 continue
             if not 1 <= value <= SIZE:
                 return 0
@@ -57,27 +59,35 @@ def count_solutions(board: Board, limit: int = 2) -> int:
                 return 0
 
     def search() -> int:
-        first_empty: tuple[int, int] | None = None
-        for row in range(SIZE):
-            for col in range(SIZE):
-                if board[row][col] == 0:
-                    first_empty = (row, col)
-                    break
-            if first_empty is not None:
-                break
-
-        if first_empty is None:
+        if not empty_positions:
             return 1
 
-        row, col = first_empty
+        best_index = 0
+        best_candidates: list[int] | None = None
+        for index, (row, col) in enumerate(empty_positions):
+            candidates = [
+                candidate
+                for candidate in range(1, SIZE + 1)
+                if is_safe(board, row, col, candidate)
+            ]
+            if not candidates:
+                return 0
+            if best_candidates is None or len(candidates) < len(best_candidates):
+                best_index = index
+                best_candidates = candidates
+                if len(best_candidates) == 1:
+                    break
+
+        row, col = empty_positions.pop(best_index)
         solutions = 0
-        for candidate in range(1, SIZE + 1):
-            if is_safe(board, row, col, candidate):
-                board[row][col] = candidate
-                solutions += search()
-                board[row][col] = 0
-                if solutions >= limit:
-                    return limit
+        for candidate in best_candidates:
+            board[row][col] = candidate
+            solutions += search()
+            board[row][col] = 0
+            if solutions >= limit:
+                empty_positions.insert(best_index, (row, col))
+                return limit
+        empty_positions.insert(best_index, (row, col))
         return solutions
 
     return search()
