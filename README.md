@@ -62,25 +62,27 @@ and check endpoints, solution-privacy) is covered by the test suite in
 
 ## Project Structure
 
+```
 starter/
-├── app.py # Flask routes
+├── app.py                 # Flask routes
 ├── sudoku/
-│ ├── generator.py # Puzzle generation, difficulty clue counts
-│ ├── validator.py # Board validation, conflict detection
-│ └── solver.py # Constraint checking, solution counting (MRV)
+│   ├── generator.py       # Puzzle generation, difficulty clue counts
+│   ├── validator.py       # Board validation, conflict detection
+│   └── solver.py          # Constraint checking, solution counting (MRV)
 ├── static/
-│ ├── main.js
-│ ├── timer.js
-│ ├── leaderboard.js
-│ ├── theme.js
-│ └── styles.css
+│   ├── main.js
+│   ├── timer.js
+│   ├── leaderboard.js
+│   ├── theme.js
+│   └── styles.css
 ├── templates/
-│ └── index.html
+│   └── index.html
 ├── tests/
-│ ├── test_app.py
-│ └── test_sudoku.py
-├── instructions.md # Copilot context/style guide used for this project
-└── Screenshots/ # Required milestone screenshots
+│   ├── test_app.py
+│   └── test_sudoku.py
+├── instructions.md        # Copilot context/style guide used for this project
+└── Screenshots/            # Required milestone screenshots
+```
 
 
 ## Working with GitHub Copilot
