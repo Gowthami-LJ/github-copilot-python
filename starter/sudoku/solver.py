@@ -1,6 +1,6 @@
-from typing import TypeAlias
+from typing import List, Optional
 
-Board: TypeAlias = list[list[int]]
+Board = List[List[int]]
 
 SIZE = 9
 
@@ -63,7 +63,7 @@ def count_solutions(board: Board, limit: int = 2) -> int:
             return 1
 
         best_index = 0
-        best_candidates: list[int] | None = None
+        best_candidates: Optional[List[int]] = None
         for index, (row, col) in enumerate(empty_positions):
             candidates = [
                 candidate
