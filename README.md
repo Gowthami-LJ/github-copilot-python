@@ -21,6 +21,11 @@ timer, a persistent Top 10 leaderboard, and light/dark themes.
 - Light/dark mode toggle, persisted across sessions
 - Responsive layout (mobile through desktop)
 
+## Requirements
+
+- Python 3.9 or newer
+- pip
+
 ## Setup
 
 1. Clone the repo and navigate to the `starter` folder:
@@ -118,13 +123,21 @@ than accepting it as-is:
   incorrectly assumed Hard difficulty always produces exactly 25 clues,
   when the uniqueness-preserving remover sometimes stops at 26+ to avoid
   ambiguous puzzles. This was corrected rather than silently ignored.
+- **Python version compatibility**: Copilot's solver module used
+  `typing.TypeAlias` and the `X | None` union syntax, both of which require
+  Python 3.10+. Since this project targets Python 3.9+, I caught this during
+  compatibility testing and replaced both with `typing.List`/`typing.Optional`
+  equivalents so the app runs correctly on 3.9.
 
 See the `Screenshots/` folder for prompt/response evidence from each major
 milestone.
 
 ## Note on Difficulty Clue Counts
 
-Because puzzle generation prioritizes a unique solution over hitting an
-exact clue count, "Hard" difficulty targets 25 clues but may occasionally
-settle for slightly more if removing further cells would create an
-ambiguous (multi-solution) puzzle.
+Puzzle generation always prioritizes a unique solution over hitting an
+exact clue count. `generate_puzzle()` removes cells while continuously
+checking uniqueness; if a particular random fill can't safely reach the
+target clue count, it retries with a freshly generated board rather than
+returning an ambiguous (multi-solution) puzzle. In practice this means
+each difficulty reliably returns its exact target clue count (Easy 45,
+Medium 35, Hard 25), typically on the first or second attempt.
