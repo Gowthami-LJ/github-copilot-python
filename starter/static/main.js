@@ -223,7 +223,6 @@ async function checkBoard() {
 
   const incorrect = new Set(
     data.incorrect
-      .filter(([row, col]) => board[row][col] !== 0)
       .map(([row, col]) => row * SIZE + col)
   );
   for (let idx = 0; idx < inputs.length; idx++) {
