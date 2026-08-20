@@ -102,3 +102,29 @@ button:hover {
     font-size: 16px;
     color: #d32f2f;
 }
+
+.leaderboard {
+    width: min(720px, 92vw);
+    margin: 30px auto;
+}
+
+.leaderboard h2 {
+    color: #333;
+}
+
+.leaderboard table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+}
+
+.leaderboard th,
+.leaderboard td {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    text-align: left;
+}
+
+.leaderboard th {
+    background: #e3f2fd;
+}

@@ -5,11 +5,14 @@ import {
   start as startTimer,
   stop as stopTimer,
 } from './timer.js';
+import {addEntry, getTopEntries} from './leaderboard.js';
 
 const SIZE = 9;
 let puzzle = [];
 let prefilled = new Set();
 let feedbackRequest = 0;
+let completionRecorded = false;
+let hintsUsed = 0;
 
 function createBoardElement() {
   const boardDiv = document.getElementById('sudoku-board');
@@ -64,6 +67,8 @@ async function newGame() {
   const res = await fetch(`/new?difficulty=${encodeURIComponent(difficulty)}`);
   const data = await res.json();
   feedbackRequest += 1;
+  completionRecorded = false;
+  hintsUsed = 0;
   renderPuzzle(data.puzzle, data.prefilled);
   startTimer(updateTimerDisplay);
   document.getElementById('message').innerText = '';
@@ -109,8 +114,46 @@ async function requestHint() {
   input.disabled = true;
   input.className = 'sudoku-cell hint';
   prefilled.add(idx);
+  hintsUsed = data.hints_used;
   msg.style.color = '#1976d2';
   msg.innerText = `Hint used: ${data.hints_used}`;
+}
+
+function recordCompletion() {
+  stopTimer();
+  if (completionRecorded) return;
+
+  completionRecorded = true;
+  const enteredName = window.prompt('Enter your name for the leaderboard:');
+  const name = enteredName && enteredName.trim() ? enteredName.trim() : 'Anonymous';
+  addEntry({
+    name,
+    elapsedTime: getElapsedSeconds(),
+    difficulty: document.getElementById('difficulty').value,
+    hints_used: hintsUsed,
+  });
+  renderLeaderboard();
+}
+
+function renderLeaderboard() {
+  const body = document.getElementById('leaderboard-body');
+  body.innerHTML = '';
+  getTopEntries().forEach((entry, index) => {
+    const row = document.createElement('tr');
+    const values = [
+      index + 1,
+      entry.name,
+      formatElapsed(entry.elapsedTime),
+      entry.difficulty,
+      entry.hints_used,
+    ];
+    values.forEach((value) => {
+      const cell = document.createElement('td');
+      cell.textContent = value;
+      row.appendChild(cell);
+    });
+    body.appendChild(row);
+  });
 }
 
 async function checkCurrentBoard() {
@@ -145,7 +188,7 @@ async function checkCurrentBoard() {
     }
   }
   if (data.complete) {
-    stopTimer();
+    recordCompletion();
     msg.style.color = '#388e3c';
     msg.innerText = 'Congratulations! You solved it!';
   } else if (incorrect.size > 0) {
@@ -189,7 +232,7 @@ async function checkBoard() {
   }
 
   if (data.complete) {
-    stopTimer();
+    recordCompletion();
     msg.style.color = '#388e3c';
     msg.innerText = 'Congratulations! You solved it!';
   } else if (incorrect.size > 0) {
@@ -205,6 +248,7 @@ window.addEventListener('load', () => {
   document.getElementById('new-game').addEventListener('click', newGame);
   document.getElementById('hint').addEventListener('click', requestHint);
   document.getElementById('check').addEventListener('click', checkBoard);
+  renderLeaderboard();
   // initialize
   newGame();
 });
