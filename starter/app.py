@@ -27,7 +27,13 @@ def new_game() -> Any:
     puzzle, solution = generator.generate_puzzle(clues)
     CURRENT['puzzle'] = puzzle
     CURRENT['solution'] = solution
-    return jsonify({'puzzle': puzzle})
+    prefilled = [
+        [row, col]
+        for row in range(generator.SIZE)
+        for col in range(generator.SIZE)
+        if puzzle[row][col] != generator.EMPTY
+    ]
+    return jsonify({'puzzle': puzzle, 'prefilled': prefilled})
 
 @app.route('/check', methods=['POST'])
 def check_solution() -> Any:
@@ -38,7 +44,10 @@ def check_solution() -> Any:
     if solution is None:
         return jsonify({'error': 'No game in progress'}), 400
     incorrect = validator.find_conflicts(board, solution)
-    return jsonify({'incorrect': incorrect})
+    complete = not incorrect and all(
+        cell != generator.EMPTY for row in board for cell in row
+    )
+    return jsonify({'incorrect': incorrect, 'complete': complete})
 
 if __name__ == '__main__':
     app.run(debug=True)

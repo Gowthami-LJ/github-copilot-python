@@ -46,6 +46,7 @@ h1 {
 
 .sudoku-cell.incorrect {
     background: #ffcdd2;
+    box-shadow: inset 0 0 0 2px #d32f2f;
 }
 
 .sudoku-cell:nth-child(3),
