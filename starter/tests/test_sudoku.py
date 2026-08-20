@@ -1,4 +1,5 @@
 from sudoku.generator import generate_puzzle
+from sudoku.solver import count_solutions
 from sudoku.validator import find_conflicts, is_valid_board
 
 
@@ -20,6 +21,13 @@ def test_generated_puzzle_has_a_valid_solution() -> None:
     _, solution = generate_puzzle()
 
     assert is_valid_board(solution)
+
+
+def test_generated_puzzle_has_exactly_one_solution() -> None:
+    """Generated puzzles should have exactly one valid solution."""
+    puzzle, _ = generate_puzzle()
+
+    assert count_solutions(puzzle) == 1
 
 
 def test_find_conflicts_returns_changed_cell_coordinates() -> None:

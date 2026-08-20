@@ -1,7 +1,7 @@
 import copy
 import random
 
-from sudoku.solver import Board, is_safe
+from sudoku.solver import Board, count_solutions, is_safe
 
 SIZE = 9
 EMPTY = 0
@@ -35,14 +35,31 @@ def fill_board(board: Board) -> bool:
 
 
 def remove_cells(board: Board, clues: int) -> None:
-    """Remove random cells from a completed board until clue count is reached."""
-    attempts = SIZE * SIZE - clues
-    while attempts > 0:
-        row = random.randrange(SIZE)
-        col = random.randrange(SIZE)
-        if board[row][col] != EMPTY:
-            board[row][col] = EMPTY
-            attempts -= 1
+    """Remove cells while preserving a unique solution where possible.
+
+    Args:
+        board: A completed Sudoku board to modify in place.
+        clues: Target number of filled cells to retain.
+    """
+    filled_positions = [
+        (row, col)
+        for row in range(SIZE)
+        for col in range(SIZE)
+        if board[row][col] != EMPTY
+    ]
+    random.shuffle(filled_positions)
+
+    remaining_clues = len(filled_positions)
+    for row, col in filled_positions:
+        if remaining_clues <= clues:
+            break
+
+        original_value = board[row][col]
+        board[row][col] = EMPTY
+        if count_solutions(deep_copy(board)) == 1:
+            remaining_clues -= 1
+        else:
+            board[row][col] = original_value
 
 
 def generate_puzzle(clues: int = 35) -> tuple[Board, Board]:
