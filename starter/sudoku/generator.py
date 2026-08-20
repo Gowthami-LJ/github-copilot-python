@@ -68,10 +68,20 @@ def remove_cells(board: Board, clues: int) -> None:
 
 
 def generate_puzzle(clues: int = 35) -> tuple[Board, Board]:
-    """Generate a puzzle and its completed solution."""
-    board = create_empty_board()
-    fill_board(board)
-    solution = deep_copy(board)
-    remove_cells(board, clues)
-    puzzle = deep_copy(board)
-    return puzzle, solution
+    """Generate a uniquely solvable puzzle and its completed solution.
+
+    The removal strategy can reach a local minimum above the requested clue
+    count. In that case, retry with a fresh completed board until the target
+    is reached.
+    """
+    if not 0 < clues <= SIZE * SIZE:
+        raise ValueError("clues must be between 1 and 81")
+
+    while True:
+        board = create_empty_board()
+        fill_board(board)
+        solution = deep_copy(board)
+        remove_cells(board, clues)
+        filled_cells = sum(cell != EMPTY for row in board for cell in row)
+        if filled_cells == clues:
+            return deep_copy(board), solution

@@ -76,6 +76,31 @@ function getCurrentBoard() {
   return {board, inputs};
 }
 
+async function requestHint() {
+  const {board, inputs} = getCurrentBoard();
+  const res = await fetch('/hint', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({board})
+  });
+  const data = await res.json();
+  const msg = document.getElementById('message');
+  if (data.error) {
+    msg.style.color = '#d32f2f';
+    msg.innerText = data.error;
+    return;
+  }
+
+  const idx = data.row * SIZE + data.col;
+  const input = inputs[idx];
+  input.value = data.value;
+  input.disabled = true;
+  input.className = 'sudoku-cell hint';
+  prefilled.add(idx);
+  msg.style.color = '#1976d2';
+  msg.innerText = `Hint used: ${data.hints_used}`;
+}
+
 async function checkCurrentBoard() {
   const requestId = ++feedbackRequest;
   const {board, inputs} = getCurrentBoard();
@@ -125,6 +150,7 @@ async function checkSolution() {
 // Wire buttons
 window.addEventListener('load', () => {
   document.getElementById('new-game').addEventListener('click', newGame);
+  document.getElementById('hint').addEventListener('click', requestHint);
   document.getElementById('check-solution').addEventListener('click', checkSolution);
   // initialize
   newGame();

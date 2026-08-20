@@ -45,3 +45,42 @@ def test_check_reports_completion_for_matching_full_board(
     response = client.post("/check", json={"board": CURRENT["solution"]})
 
     assert response.get_json() == {"incorrect": [], "complete": True}
+
+
+def test_hint_fills_an_empty_editable_cell_and_tracks_usage(
+    client: FlaskClient,
+) -> None:
+    """A hint returns one solution value without exposing the full solution."""
+    new_response = client.get("/new?difficulty=easy")
+    puzzle = new_response.get_json()["puzzle"]
+    board = [row[:] for row in puzzle]
+
+    response = client.post("/hint", json={"board": board})
+    data = response.get_json()
+
+    assert response.status_code == 200
+    assert board[data["row"]][data["col"]] == 0
+    assert data["value"] == CURRENT["solution"][data["row"]][data["col"]]
+    assert data["hints_used"] == 1
+    assert set(data) == {"row", "col", "value", "hints_used"}
+
+
+def test_hint_rejects_a_complete_board(client: FlaskClient) -> None:
+    """Hints should fail clearly after the active board is complete."""
+    client.get("/new?difficulty=easy")
+
+    response = client.post("/hint", json={"board": CURRENT["solution"]})
+
+    assert response.status_code == 400
+    assert response.get_json() == {"error": "The board is already complete"}
+
+
+def test_hint_requires_a_game(client: FlaskClient) -> None:
+    """Hints should fail clearly when no game is active."""
+    CURRENT["solution"] = None
+    CURRENT["puzzle"] = None
+
+    response = client.post("/hint", json={"board": []})
+
+    assert response.status_code == 400
+    assert response.get_json() == {"error": "No game in progress"}

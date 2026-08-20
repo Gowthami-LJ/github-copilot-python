@@ -8,8 +8,9 @@ app = Flask(__name__)
 
 # Keep a simple in-memory store for current puzzle and solution
 CURRENT = {
-    'puzzle': None,
-    'solution': None
+    "puzzle": None,
+    "solution": None,
+    "hints_used": 0,
 }
 
 @app.route('/')
@@ -25,15 +26,45 @@ def new_game() -> Any:
         difficulty, generator.DIFFICULTY_CLUES["medium"]
     )
     puzzle, solution = generator.generate_puzzle(clues)
-    CURRENT['puzzle'] = puzzle
-    CURRENT['solution'] = solution
+    CURRENT["puzzle"] = puzzle
+    CURRENT["solution"] = solution
+    CURRENT["hints_used"] = 0
     prefilled = [
         [row, col]
         for row in range(generator.SIZE)
         for col in range(generator.SIZE)
         if puzzle[row][col] != generator.EMPTY
     ]
-    return jsonify({'puzzle': puzzle, 'prefilled': prefilled})
+    return jsonify({"puzzle": puzzle, "prefilled": prefilled})
+
+
+@app.route("/hint", methods=["POST"])
+def hint() -> Any:
+    """Fill and return one currently empty, editable cell."""
+    solution = CURRENT.get("solution")
+    puzzle = CURRENT.get("puzzle")
+    if solution is None or puzzle is None:
+        return jsonify({"error": "No game in progress"}), 400
+
+    data = request.get_json(silent=True) or {}
+    board = data.get("board")
+    if not isinstance(board, list):
+        return jsonify({"error": "A board is required to request a hint"}), 400
+
+    for row in range(generator.SIZE):
+        for col in range(generator.SIZE):
+            if puzzle[row][col] == generator.EMPTY and board[row][col] == generator.EMPTY:
+                CURRENT["hints_used"] += 1
+                return jsonify(
+                    {
+                        "row": row,
+                        "col": col,
+                        "value": solution[row][col],
+                        "hints_used": CURRENT["hints_used"],
+                    }
+                )
+
+    return jsonify({"error": "The board is already complete"}), 400
 
 @app.route('/check', methods=['POST'])
 def check_solution() -> Any:
